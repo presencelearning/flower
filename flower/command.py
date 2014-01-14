@@ -16,7 +16,7 @@ from . import settings
 from . import __version__
 from .app import Flower
 
-
+define("unix_socket", default=None, help="Run using a unix domain socket", type=str)
 define("port", default=5555, help="run on the given port", type=int)
 define("address", default='', help="run on the given address", type=str)
 define("debug", default=False, help="run in debug mode", type=bool)
@@ -72,10 +72,13 @@ class FlowerCommand(Command):
             sys.exit(0)
         signal.signal(signal.SIGTERM, signal_handler)
 
-        logging.info('Visit me at http%s://%s:%s',
-                     's' if flower.ssl else '',
-                     options.address or 'localhost',
-                     options.port)
+        if options.unix_socket:
+            logging.info('Visit me at unix:%s', options.unix_socket)
+        else:
+            logging.info('Visit me at http%s://%s:%s',
+                         's' if flower.ssl else '',
+                         options.address or 'localhost',
+                         options.port)
         logging.info('Broker: %s', self.app.connection().as_uri())
         logging.debug('Settings: %s', pformat(app_settings))
 

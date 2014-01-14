@@ -2,7 +2,11 @@ from __future__ import absolute_import
 
 import os
 
+from tornado.httpserver import HTTPServer
+from tornado.netutil import bind_unix_socket
+
 import tornado.web
+
 from tornado import ioloop
 
 import celery
@@ -41,8 +45,14 @@ class Flower(tornado.web.Application):
         self.events.start()
         if self.options.inspect:
             self.state.start()
-        self.listen(self.options.port, address=self.options.address,
-                    ssl_options=self.ssl, xheaders=self.options.xheaders)
+
+        if self.options.unix_socket:
+            server = HTTPServer(self)
+            socket = bind_unix_socket(self.options.unix_socket)
+            server.add_socket(socket)
+        else:
+            self.listen(self.options.port, address=self.options.address,
+                        ssl_options=self.ssl, xheaders=self.options.xheaders)
         self.io_loop.start()
 
     def stop(self):
