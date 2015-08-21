@@ -14,7 +14,7 @@ from .. import settings
 from ..views import BaseHandler
 
 
-class LoginHandler(BaseHandler, tornado.auth.GoogleMixin):
+class LoginHandler(BaseHandler, tornado.auth.GoogleOAuth2Mixin):
     @tornado.web.asynchronous
     def get(self):
         if self.get_argument("openid.mode", None):
